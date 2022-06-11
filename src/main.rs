@@ -19,6 +19,7 @@ impl Dictionary {
             children: HashMap::new(),
         }
     }
+
     //// Construct a default node from a provided string
     fn from_str(str: String) -> Dictionary { Dictionary { path: str, ..Dictionary::default() } }
 
@@ -118,22 +119,9 @@ fn get_anagrams(word: String) {
 /// Program entrypoint - print anagrams for word in argv
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("Arguments: {:?}", args);
 
-    let target = match args.len() {
-        0..=1 => {
-            println!("Missing second word argument!");
-            None
-        }
-        2 => Some(&args[1]),
-        n => {
-            println!("Unexpected arguments! {:#?}", &args[2..n]);
-            Some(&args[1])
-        }
-    };
-
-    match target {
-        Some(target) => { get_anagrams(target.clone()) }
-        None => {}
+    match args.get(1) {
+        Some(word) => { get_anagrams(word.clone()); }
+        None => { println!("Missing second word argument!"); }
     }
 }
