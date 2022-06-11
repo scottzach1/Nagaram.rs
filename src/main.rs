@@ -109,6 +109,7 @@ fn remove_whitespace(string: &str) -> String {
 /// Prints a list of anagrams for a provided word
 fn get_anagrams(word: String) {
     let target = remove_whitespace(&word).to_lowercase();
+    // Obtained <https://raw.githubusercontent.com/paolino/anagrams/master/words.txt>
     let words = String::from_utf8_lossy(include_bytes!("words.txt"));
     let root = parse(words.lines());
 
