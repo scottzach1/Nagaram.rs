@@ -1,4 +1,13 @@
 use std::{env, fs};
+use std::iter::Map;
+
+#[derive(Debug)]
+struct Node {
+    path: String,
+    end: bool,
+    parent: Box<Node>,
+    children: Map<String, Box<Node>>,
+}
 
 
 fn main() {
