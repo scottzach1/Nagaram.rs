@@ -4,42 +4,41 @@ use std::{env, fs};
 use std::collections::{HashMap, HashSet};
 use std::str::{Lines};
 
-struct Node {
+struct Dictionary {
     path: String,
     word: bool,
-    children: HashMap<char, Node>,
+    children: HashMap<char, Dictionary>,
 }
 
-impl Node {
-    fn default() -> Node {
-        Node {
+impl Dictionary {
+    /// Provide a default value to build from
+    fn default() -> Dictionary {
+        Dictionary {
             path: format!(""),
             word: false,
             children: HashMap::new(),
         }
     }
-    fn from_str(str: String) -> Node { Node { path: str, ..Node::default() } }
+    //// Construct a default node from a provided string
+    fn from_str(str: String) -> Dictionary { Dictionary { path: str, ..Dictionary::default() } }
 
-    fn ingest(self, word: String) -> Node {
-        if word.is_empty() { return Node { word: true, ..self }; }
+    /// Add a word into the dictionary
+    fn add(self, word: String) -> Dictionary {
+        if word.is_empty() { return Dictionary { word: true, ..self }; }
         let (c, rest) = get_c(&word);
 
         let mut children = self.children;
         let child = children
             .remove(&c)
-            .unwrap_or(Node::from_str(format!("{}{}", &self.path, c)))
-            .ingest(rest);
+            .unwrap_or(Dictionary::from_str(format!("{}{}", &self.path, c)))
+            .add(rest);
         children.insert(c, child);
 
-        Node {
-            path: self.path,
-            word: self.word,
-            children,
-            ..Node::default()
-        }
+        Dictionary { children, ..self }
     }
 
-    fn anagrams_helper(&self, word: String, root: &Node) -> Vec<String> {
+    /// Helper method to find anagrams with root reference
+    fn anagrams_helper(&self, word: String, root: &Dictionary) -> Vec<String> {
         let mut results = vec![];
 
         if word.is_empty() {
@@ -68,13 +67,15 @@ impl Node {
         })
     }
 
+    /// Get all anagrams that match a provided word
     fn anagrams(&self, word: String) -> Vec<String> {
         self.anagrams_helper(word, &self)
     }
 }
 
-fn parse(iterator: Lines) -> Node {
-    iterator.fold(Node::default(), |n, line| n.ingest(line.to_string().to_lowercase()))
+/// Parse an iterator of words into a Dictionary
+fn parse(iterator: Lines) -> Dictionary {
+    iterator.fold(Dictionary::default(), |n, line| n.add(line.to_string().to_lowercase()))
 }
 
 /// Remove the first instance of a character from a string
@@ -99,12 +100,14 @@ fn get_c(s: &String) -> (char, String) {
     }
 }
 
-fn remove_whitespace(s: &str) -> String {
-    s.chars().filter(|c| !c.is_whitespace()).collect()
+/// Remove any whitespace from a string
+fn remove_whitespace(string: &str) -> String {
+    string.chars().filter(|c| !c.is_whitespace()).collect()
 }
 
-fn get_anagrams(target: String) {
-    let target = remove_whitespace(&target).to_lowercase();
+/// Prints a list of anagrams for a provided word
+fn get_anagrams(word: String) {
+    let target = remove_whitespace(&word).to_lowercase();
     let words = fs::read_to_string("words.txt").expect("Could not locate dictionary");
     let root = parse(words.lines());
 
@@ -112,6 +115,7 @@ fn get_anagrams(target: String) {
     anagrams.iter().for_each(|w| println!("- {:#?}", w));
 }
 
+/// Program entrypoint - print anagrams for word in argv
 fn main() {
     let args: Vec<String> = env::args().collect();
     println!("Arguments: {:?}", args);
