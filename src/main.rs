@@ -4,9 +4,17 @@ use std::iter::Map;
 #[derive(Debug)]
 struct Node {
     path: String,
-    end: bool,
-    parent: Box<Node>,
-    children: Map<String, Box<Node>>,
+    parent: Option<Box<Node>>,
+    children: Option<Map<String, Box<Node>>>,
+}
+
+impl Node {
+    fn get_root(self) -> Node {
+        match self.parent {
+            Some(parent) => parent.get_root(),
+            None => self
+        }
+    }
 }
 
 
