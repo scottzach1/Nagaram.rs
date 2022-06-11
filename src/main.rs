@@ -17,16 +17,16 @@ impl Node {
             children: HashMap::new(),
         }
     }
+    fn from_str(str: String) -> Node { Node { path: str, ..Node::default() } }
 
     fn ingest(self, word: String) -> Node {
-        if word.is_empty() { return self }
-
-        let (c, rest) = get_c(word);
-        let child_default = Node { path: format!("{}{}", &self.path, c), ..Node::default() };
+        if word.is_empty() { return self; }
+        let (c, rest) = get_c(&word);
 
         let mut children = self.children;
         let child = children
-            .remove(&c).unwrap_or(child_default)
+            .remove(&c)
+            .unwrap_or(Node::from_str(format!("{}{}", &self.path, c)))
             .ingest(rest);
         children.insert(c, child);
 
@@ -38,18 +38,12 @@ impl Node {
     }
 }
 
-fn parse(_iterator: Lines) -> Node {
-    println!("Dictionary:");
-    // iterator.for_each(|word|println!("- {}", word));
-
-    let root = Node::default().ingest(format!("abc")).ingest(format!("ad"));
-    println!("{:#?}", root);
-    root
+fn parse(iterator: Lines) -> Node {
+    iterator.fold(Node::default(), |n, line| n.ingest(line.to_string()))
 }
 
 /// Extract the next character from a String, returning bot the next char and remainder.
-/// Throws a `SyntaxError` on end of string.
-fn get_c(s: String) -> (char, String) {
+fn get_c(s: &String) -> (char, String) {
     let mut chars = s.chars();
     match chars.next() {
         Some(c) => (c, chars.collect()),
