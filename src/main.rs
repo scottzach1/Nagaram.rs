@@ -1,6 +1,6 @@
 extern crate core;
 
-use std::{env, fs};
+use std::{env};
 use std::collections::{HashMap, HashSet};
 use std::str::{Lines};
 
@@ -109,7 +109,7 @@ fn remove_whitespace(string: &str) -> String {
 /// Prints a list of anagrams for a provided word
 fn get_anagrams(word: String) {
     let target = remove_whitespace(&word).to_lowercase();
-    let words = fs::read_to_string("words.txt").expect("Could not locate dictionary");
+    let words = String::from_utf8_lossy(include_bytes!("words.txt"));
     let root = parse(words.lines());
 
     let anagrams = root.anagrams(target);
