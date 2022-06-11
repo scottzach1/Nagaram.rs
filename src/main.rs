@@ -1,5 +1,6 @@
 use std::{env, fs};
 use std::iter::Map;
+use std::str::Lines;
 
 #[derive(Debug)]
 struct Node {
@@ -17,6 +18,11 @@ impl Node {
     }
 }
 
+fn parse(iterator: Lines) {
+    println!("Dictionary:");
+    iterator.for_each(|word|println!("- {}", word));
+}
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -25,6 +31,5 @@ fn main() {
     let dictionary = fs::read_to_string("words.txt")
         .expect("Could not locate dictionary");
 
-    println!("Dictionary:");
-    dictionary.lines().into_iter().for_each(|word|println!("- {}", word));
+    parse(dictionary.lines());
 }
